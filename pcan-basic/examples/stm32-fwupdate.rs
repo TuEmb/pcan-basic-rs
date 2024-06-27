@@ -95,7 +95,7 @@ fn main() -> anyhow::Result<()> {
     let file_name = file_name.unwrap();
     let mut file = File::open(file_name)?;
 
-    let can = pcan_basic::Interface::init()?;
+    let can = pcan_basic::Interface::init(0x033A)?;
     let mut bl = Bootloader::new(can);
 
     bl.enable()?;

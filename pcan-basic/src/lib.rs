@@ -46,14 +46,14 @@ pub struct Interface {
 }
 
 impl Interface {
-    pub fn init() -> Result<Self, Error> {
+    pub fn init(baudrate_cfg: u16) -> Result<Self, Error> {
         let pcan_channel = PCAN_USBBUS1 as u16;
 
         // When running with 125kbps the STM32 bootloader sets the acknowledge bit early.
         // Choose a nominal sample point of 75% to prevent form errors in the CRC delimiter.
         // Value calculated using http://www.bittiming.can-wiki.info/ (NXP SJA1000)
-        const BAUDRATE_CONFIG: u16 = 0x033A;
-        let result = unsafe { CAN_Initialize(pcan_channel, BAUDRATE_CONFIG, 0, 0, 0) };
+
+        let result = unsafe { CAN_Initialize(pcan_channel, baudrate_cfg, 0, 0, 0) };
         if result != PCAN_ERROR_OK {
             return Err(Error::new(result));
         }

@@ -218,18 +218,17 @@ impl embedded_can::blocking::Can for Interface {
     }
 
     fn try_read(&mut self) -> Result<Frame, Error> {
-        match self.receive() {
-            Err(nb::Error::WouldBlock) => {
-                unsafe { synchapi::WaitForSingleObject(self.event_handle, INFINITE) };
-                match self.receive() {
-                    Ok(frame) => Ok(frame),
-                    Err(nb::Error::Other(err)) => Err(err),
-                    _ => panic!("Receive queue should not be empty!"),
+        loop {
+            match self.receive() {
+                Err(nb::Error::WouldBlock) => {
+                    unsafe { synchapi::WaitForSingleObject(self.event_handle, INFINITE) };
+                    continue;
                 }
+                Ok(frame) => break Ok(frame),
+                Err(nb::Error::Other(err)) => break Err(err),
             }
-            Ok(frame) => Ok(frame),
-            Err(nb::Error::Other(err)) => Err(err),
         }
+
     }
 }
 
